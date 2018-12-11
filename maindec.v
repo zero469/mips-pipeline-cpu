@@ -56,8 +56,9 @@ module maindec(
             `ORI:    control <= 7'b1010000;
             `LUI:    control <= 7'b1010000;
             `SLTI:   control <= 7'b1010000;
+            `ADDIU:  control <= 7'b1010000;
+            `SLTIU:  control <= 7'b1010000;
             
-
             
             `J:      control <= 7'b0000001;
             default: control <= 7'b0000000;

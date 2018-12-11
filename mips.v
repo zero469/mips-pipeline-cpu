@@ -34,7 +34,7 @@ module mips(
 			regwriteE,regwriteM,regwriteW;
 	wire [4:0] alucontrolE;
 	wire flushE,equalD;
-
+	wire overflow;
 	controller c(
 		clk,rst,
 		//decode stage
@@ -43,10 +43,11 @@ module mips(
 		
 		//execute stage
 		flushE,
+		overflow,////------------------------new signal
 		memtoregE,alusrcE,
 		regdstE,regwriteE,	
 		alucontrolE,
-
+		
 		//mem stage
 		memtoregM,memwriteM,
 		regwriteM,
@@ -69,6 +70,7 @@ module mips(
 		regwriteE,
 		alucontrolE,
 		flushE,
+		overflow,///----------------new signal
 		//mem stage
 		memtoregM,
 		regwriteM,

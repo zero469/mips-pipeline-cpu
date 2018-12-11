@@ -31,6 +31,7 @@ module controller(
 	
 	//execute stage
 	input wire flushE,
+	input wire overflow,///////-----------------new signal
 	output wire memtoregE,alusrcE,
 	output wire regdstE,regwriteE,	
 	output wire[4:0] alucontrolE,
@@ -69,7 +70,7 @@ module controller(
 		);
 	flopr #(8) regM(
 		clk,rst,
-		{memtoregE,memwriteE,regwriteE},
+		{memtoregE,memwriteE,regwriteE & (~overflow)},
 		{memtoregM,memwriteM,regwriteM}
 		);
 	flopr #(8) regW(
