@@ -37,7 +37,6 @@ module aludec(
             `ORI   : alucontrol <= `OR_CONTROL;
             `SLTI  : alucontrol <= `SLT_CONTROL;
             `LUI   : alucontrol <= `LUI_CONTROL;
-            
             `ADDIU : alucontrol <= `ADDU_CONTROL;
             `SLTIU : alucontrol <= `SLTU_CONTROL;
             `R_TYPE: begin
@@ -55,10 +54,14 @@ module aludec(
                     `SRLV  : alucontrol <= `SRLV_CONTROL;
                     `SRA   : alucontrol <= `SRA_CONTROL;
                     `SRAV  : alucontrol <= `SRAV_CONTROL;
-
                     `SLTU  : alucontrol <= `SLTU_CONTROL;
                     `ADDU  : alucontrol <= `ADDU_CONTROL;
                     `SUBU  : alucontrol <= `SUBU_CONTROL;
+
+                    `MFHI  : alucontrol <= `MFHI_CONTROL;
+                    `MTHI  : alucontrol <= `MTHI_CONTROL;
+                    `MFLO  : alucontrol <= `MFLO_CONTROL;
+                    `MTLO  : alucontrol <= `MTLO_CONTROL;
                     `MULT  : alucontrol <= `MULT_CONTROL;
                     `MULTU : alucontrol <= `MULTU_CONTROL;
                     default  : begin end
