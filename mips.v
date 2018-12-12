@@ -35,6 +35,7 @@ module mips(
 	wire [1:0] hilo_we;
 	wire [4:0] alucontrolE;
 	wire flushE,equalD;
+	wire stallE;
 	wire overflow;
 	wire [31:0] instrD;
 	controller c(
@@ -45,7 +46,8 @@ module mips(
 		
 		//execute stage
 		flushE,
-		overflow,////------------------------new signal
+		stallE,
+		overflow,
 		memtoregE,alusrcE,
 		regdstE,regwriteE,	
 		alucontrolE,
@@ -74,7 +76,8 @@ module mips(
 		regwriteE,
 		alucontrolE,
 		flushE,
-		overflow,///----------------new signal
+		stallE,
+		overflow,
 		//mem stage
 		memtoregM,
 		regwriteM,

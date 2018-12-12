@@ -49,32 +49,36 @@ module maindec(
                     `MTLO : hilo_we <=2'b01;
                     `MFHI : hilo_we <=2'b00;
                     `MFLO : hilo_we <=2'b00;
+                    `MULT : hilo_we <=2'b11;
+                    `MULTU: hilo_we <=2'b11;
+                    `DIV  : hilo_we <=2'b11;
+                    `DIVU : hilo_we <=2'b11;
                 endcase
             end 
             
             
-            `LW:     control <= 7'b1010010;
-            `SW:     control <= 7'b0010100; 
+            `LW:     {control,hilo_we} <= 9'b1010010_00;
+            `SW:     {control,hilo_we} <= 9'b0010100_00; 
             
-            `BEQ:    control <= 7'b0001000;
-            `BNE:    control <= 7'b0001000;
-            `BGTZ:   control <= 7'b0001000;
-            `BLEZ:   control <= 7'b0001000;
-            `BLTZ:   control <= 7'b0001000;
-            `BGEZ:   control <= 7'b0001000;
+            `BEQ:    {control,hilo_we} <= 9'b0001000_00;
+            `BNE:    {control,hilo_we} <= 9'b0001000_00;
+            `BGTZ:   {control,hilo_we} <= 9'b0001000_00;
+            `BLEZ:   {control,hilo_we} <= 9'b0001000_00;
+            `BLTZ:   {control,hilo_we} <= 9'b0001000_00;
+            `BGEZ:   {control,hilo_we} <= 9'b0001000_00;
             
-            `ADDI:   control <= 7'b1010000;
-            `ANDI:   control <= 7'b1010000;
-            `XORI:   control <= 7'b1010000;
-            `ORI:    control <= 7'b1010000;
-            `LUI:    control <= 7'b1010000;
-            `SLTI:   control <= 7'b1010000;
-            `ADDIU:  control <= 7'b1010000;
-            `SLTIU:  control <= 7'b1010000;
+            `ADDI:   {control,hilo_we} <= 9'b1010000_00;
+            `ANDI:   {control,hilo_we} <= 9'b1010000_00;
+            `XORI:   {control,hilo_we} <= 9'b1010000_00;
+            `ORI:    {control,hilo_we} <= 9'b1010000_00;
+            `LUI:    {control,hilo_we} <= 9'b1010000_00;
+            `SLTI:   {control,hilo_we} <= 9'b1010000_00;
+            `ADDIU:  {control,hilo_we} <= 9'b1010000_00;
+            `SLTIU:  {control,hilo_we} <= 9'b1010000_00;
             
             
-            `J:      control <= 7'b0000001;
-            default: control <= 7'b0000000;
+            `J:      {control,hilo_we} <= 9'b0000001_00;
+            default: {control,hilo_we} <= 9'b0000000_00;
         endcase
     end
 endmodule

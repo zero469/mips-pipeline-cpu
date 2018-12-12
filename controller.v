@@ -30,7 +30,7 @@ module controller(
 	output wire jumpD,
 	
 	//execute stage
-	input wire flushE,
+	input wire flushE,stallE,
 	input wire overflow,///////-----------------new signal
 	output wire memtoregE,alusrcE,
 	output wire regdstE,regwriteE,	
@@ -61,12 +61,14 @@ module controller(
 		);
 	aludec ad(.op(opD),.funct(functD),.alucontrol(alucontrolD));
 
+
 	assign pcsrcD = branchD & equalD;
 
 	//pipeline registers
-	floprc #(10) regE(
+	flopenrc #(10) regE(
 		clk,
 		rst,
+		~stallE,
 		flushE,
 		{memtoregD,memwriteD,alusrcD,regdstD,regwriteD,alucontrolD},
 		{memtoregE,memwriteE,alusrcE,regdstE,regwriteE,alucontrolE}

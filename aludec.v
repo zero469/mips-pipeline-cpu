@@ -64,6 +64,9 @@ module aludec(
                     `MTLO  : alucontrol <= `MTLO_CONTROL;
                     `MULT  : alucontrol <= `MULT_CONTROL;
                     `MULTU : alucontrol <= `MULTU_CONTROL;
+
+                    `DIV   : alucontrol <= `DIV_CONTROL;
+                    `DIVU  : alucontrol <= `DIVU_CONTROL;
                     default  : begin end
                 endcase
             end
