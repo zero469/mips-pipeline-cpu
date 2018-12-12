@@ -33,12 +33,25 @@
 */
 
 module maindec(
-    input wire [5:0] op,
-    output reg[6:0] control
+    input wire[31:0] instr,
+    output reg[6:0] control,
+    output reg[1:0] hilo_we
     );
+    wire [5:0] op,funct;
+    assign op = instr[31:26];
+    assign funct = instr[5:0];
     always@(*) begin
         case(op)
-            `R_TYPE: control <= 7'b1100000;
+            `R_TYPE: begin
+                control <= 7'b1100000;
+                case(funct)
+                    `MTHI : hilo_we <=2'b10;
+                    `MTLO : hilo_we <=2'b01;
+                    `MFHI : hilo_we <=2'b00;
+                    `MFLO : hilo_we <=2'b00;
+                endcase
+            end 
+            
             
             `LW:     control <= 7'b1010010;
             `SW:     control <= 7'b0010100; 

@@ -24,7 +24,7 @@
 module controller(
 	input wire clk,rst,
 	//decode stage
-	input wire[5:0] opD,functD,
+	input wire [31:0]instrD,
 	output wire pcsrcD,branchD,
 	input wire equalD,
 	output wire jumpD,
@@ -40,21 +40,24 @@ module controller(
 	output wire memtoregM,memwriteM,
 				regwriteM,
 	//write back stage
-	output wire memtoregW,regwriteW
-
+	output wire memtoregW,regwriteW,
+	output wire[1:0] hilo_we
     );
 	
 	//decode stage
 	wire memtoregD,memwriteD,alusrcD,
 		regdstD,regwriteD;
 	wire[4:0] alucontrolD;
-
+	wire[5:0]opD,functD;
+	assign opD=instrD[31:26];
+	assign functD=instrD[5:0];
 	//execute stage
 	wire memwriteE;
 
 	maindec md(
-		.op(opD),
-		.control({regwriteD,regdstD,alusrcD,branchD,memwriteD,memtoregD,jumpD})
+		.instr(instrD),
+		.control({regwriteD,regdstD,alusrcD,branchD,memwriteD,memtoregD,jumpD}),
+		.hilo_we(hilo_we)
 		);
 	aludec ad(.op(opD),.funct(functD),.alucontrol(alucontrolD));
 
@@ -70,7 +73,7 @@ module controller(
 		);
 	flopr #(8) regM(
 		clk,rst,
-		{memtoregE,memwriteE,regwriteE & (~overflow)},
+		{memtoregE,memwriteE,regwriteE & (~overflow)},//overflow cause error
 		{memtoregM,memwriteM,regwriteM}
 		);
 	flopr #(8) regW(

@@ -27,52 +27,47 @@ module alu(
     input wire [4:0] op,
     input wire [4:0] sa,
 ///...
-    input wire [63:0]hilo_oW,
-    input wire [63:0]hilo_oM,
-    input wire [63:0]hilo_i,
-    input wire hilo_wirteM,
-    input wire hilo_wirteW,
-    output wire hilo_wirteo,
-    output wire [31:0]hi_alu_out,
-    output wire [31:0]lo_alu_out,
+    input wire [1:0] hilo_we,
+    input wire [31:0] hi,
+    input wire [31:0] lo,
+    output reg [31:0]hi_alu_out,
+    output reg [31:0]lo_alu_out,
 ///....
-    output wire [31:0] res,
+    output reg [31:0] res,
     output wire overflow, zero
      );
-     assign res =   (op == `AND_CONTROL) ? a & b:
-                    (op == `OR_CONTROL)  ? a | b:
-                    (op == `LUI_CONTROL) ? {b[15:0],{16{1'b0}}}:
-                    (op == `XOR_CONTROL) ? a ^ b:
-                    (op == `NOR_CONTROL) ? ~(a | b):
-                    (op == `ADD_CONTROL)  ? $signed(a) + $signed(b):
-                    (op == `ADDU_CONTROL) ? a + b:
-                    (op == `SUB_CONTROL)  ? $signed(a) - $signed(b):
-                    (op == `SUBU_CONTROL) ? a - b:
-                    (op == `SLT_CONTROL)  ? (($signed(a) < $signed(b)) ? 32'b1 : 32'b0):
-                    (op == `SLTU_CONTROL) ? ((a < b) ? 32'b1 : 32'b0):
-                    (op == `SLL_CONTROL)  ? b<<sa:
-                    (op == `SRL_CONTROL)  ? b>>sa:
-                    (op == `SLLV_CONTROL) ? b << a[4:0]:
-                    (op == `SRLV_CONTROL) ? b >> a[4:0]:
-                    (op == `SRA_CONTROL)  ? ({32{b[31]}} << (6'd32-{1'b0,sa})) | b>>sa:
-                    (op == `SRAV_CONTROL) ? ({32{b[31]}} << (6'd32-{1'b0,a[4:0]})) | b>>a[4:0]:
-                    (op == `SLT_CONTROL) ? ((a < b) ? 32'b1 : 32'b0):
-///....
-                    (op == `MFHI_CONTROL) ? ((hilo_wirteM==1'b1)?hilo_oM[63:32]:((hilo_wirteW==1'b1)?hilo_oW[63:32]:hilo_i[63:32])):
-                    (op == `MFLO_CONTROL) ? (hilo_wirteM?hilo_oM[31:0]:hilo_wirteW?hilo_oW[31:0]:hilo_i[31:0]):
-///...
-                    32'b0;
-///...     
-     assign {hi_alu_out,lo_alu_out} = (op == `MULT_CONTROL) ? $signed(a) * $signed(b):
-                                      (op == `MULTU_CONTROL)? a * b:
-                                      64'b0;
-     
-     assign hilo_wirteo = (op== `MTHI_CONTROL|| op == `MTLO_CONTROL) ? 1'b1 : 1'b0;
-///...
+     always@(*)begin
+        case(op)
+            `AND_CONTROL:   res <= a & b;
+            `OR_CONTROL:    res <= a | b;
+            `LUI_CONTROL:   res <= {b[15:0],{16{1'b0}}};
+            `XOR_CONTROL:   res <= a ^ b;
+            `NOR_CONTROL:   res <= ~(a | b);
+            `ADD_CONTROL:   res <= $signed(a) + $signed(b);
+            `ADDU_CONTROL:  res <= a + b;
+            `SUB_CONTROL:   res <= $signed(a) - $signed(b);
+            `SUBU_CONTROL:  res <= a - b;
+            `MULT_CONTROL:  {hi_alu_out,lo_alu_out} <=  $signed(a) * $signed(b);
+            `MULTU_CONTROL: {hi_alu_out,lo_alu_out} <=  a * b;
+            `SLT_CONTROL:   res <= (($signed(a) < $signed(b)) ?  32'b1 : 32'b0);
+            `SLTU_CONTROL:  res <= ((a < b) ? 32'b1 : 32'b0);
+            `SLL_CONTROL:   res <= b<<sa;
+            `SRL_CONTROL:   res <= b>>sa;
+            `SLLV_CONTROL:  res <= b << a[4:0];
+            `SRLV_CONTROL:  res <= b >> a[4:0];
+            `SRA_CONTROL:   res <= ({32{b[31]}} << (6'd32-{1'b0,sa})) | b>>sa;
+            `SRAV_CONTROL:  res <= ({32{b[31]}} << (6'd32-{1'b0,a[4:0]})) | b>>a[4:0];
+            `SLT_CONTROL:   res <= ((a < b) ? 32'b1 : 32'b0);
+            
+            `MTHI_CONTROL:  hi_alu_out <= a;
+            `MTLO_CONTROL:  lo_alu_out <= a;
+            `MFHI_CONTROL:  res <= hi;
+            `MFLO_CONTROL:  res <= lo;
+        endcase
+     end
      assign overflow = (op == `ADD_CONTROL || op == `SUB_CONTROL) ? ((a[31] & b[31] & (~res[31])) | ((~a[31]) & (~b[31]) & res[31])) : 1'b0;
      assign zero = (res == 32'b0) ? 1 : 0;
 endmodule
-
 /*
     add  sub  has overflow
 */ 
