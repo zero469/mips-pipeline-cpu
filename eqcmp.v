@@ -26,16 +26,27 @@ module eqcmp(
     input wire[31:0] a,b,
     input wire[5:0]  op,
     input wire[4:0]  rt,
-    output wire c
+    output reg c
     );
-    assign c = (op == `BEQ)  ? (a == b):
-               (op == `BNE)  ? (a != b):
-               (op == `BGTZ) ? ((a[31] == 1'b0) && (a != `ZeroWord)):
-               (op == `BLEZ) ? ((a[31] == 1'b1) || (a == `ZeroWord)):
-               (op == `BLTZ) ? (a[32] == 1'b1):
-               (op == `BGEZ) ? ((a[31] == 1'b0) || (a != `ZeroWord)):
-               1'b0;
-               ////BLTZAL BFEZAL 
+    always @(*) begin 
+        case(op)
+             `BEQ:  c <= (a == b);
+             `BNE:  c <= (a != b);
+             `BGTZ: c <= ((a[31] == 1'b0) && (a != `ZeroWord));
+             `BLEZ: c <= ((a[31] == 1'b1) || (a == `ZeroWord));
+             `REGIMM_INST: begin 
+                case(rt)
+                    `BLTZ,`BLTZAL: c <= (a[31] == 1'b1);
+                    `BGEZ,`BGEZAL: c <= (a[31] == 1'b0) || (a == `ZeroWord);
+                  
+                endcase
+             end
+        
+      endcase
+    
+    end
+               ////BLTZAL  rs的值小于 0则转移
+               /// BGEZAL rs的值大于等于 0则转移 
 
 
 endmodule

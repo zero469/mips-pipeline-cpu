@@ -31,54 +31,73 @@
     control[0] Jump  
     
 */
-
+//regwrite,regdst,alusrc,bracn,memen,memtoreg,jump,jal,jr,bal,memwrite;
 module maindec(
     input wire[31:0] instr,
-    output reg[6:0] control,
+    output reg[10:0] control,
     output reg[1:0] hilo_we
     );
     wire [5:0] op,funct;
+    wire [4:0] rt;
     assign op = instr[31:26];
     assign funct = instr[5:0];
+    assign rt = instr[20:16];
     always@(*) begin
         case(op)
             `R_TYPE: begin
-                control <= 7'b1100000;
+
+               // control <= 11'b1100_0000_000;
                 case(funct)
-                    `MTHI : hilo_we <=2'b10;
-                    `MTLO : hilo_we <=2'b01;
-                    `MFHI : hilo_we <=2'b00;
-                    `MFLO : hilo_we <=2'b00;
-                    `MULT : hilo_we <=2'b11;
-                    `MULTU: hilo_we <=2'b11;
-                    `DIV  : hilo_we <=2'b11;
-                    `DIVU : hilo_we <=2'b11;
+                    `MTHI : {control,hilo_we} <=13'b1100_0000_0001_0;
+                    `MTLO : {control,hilo_we} <=13'b1100_0000_0000_1;
+                    `MFHI : {control,hilo_we} <=13'b1100_0000_0000_0;
+                    `MFLO : {control,hilo_we} <=13'b1100_0000_0000_0;
+                    `MULT : {control,hilo_we} <=13'b1100_0000_0001_1;
+                    `MULTU: {control,hilo_we} <=13'b1100_0000_0001_1;
+                    `DIV  : {control,hilo_we} <=13'b1100_0000_0001_1;
+                    `DIVU : {control,hilo_we} <=13'b1100_0000_0001_1;
+                    `JALR:  {control,hilo_we} <= 13'b1100_0000_1000_0;
+                    `JR:    {control,hilo_we} <= 13'b0000_0010_1000_0;
+                    default: {control,hilo_we} <= 13'b1100_0000_0000_0;
                 endcase
+
             end 
             
             
-            `LW:     {control,hilo_we} <= 9'b1010010_00;
-            `SW:     {control,hilo_we} <= 9'b0010100_00; 
+            `LW:     {control,hilo_we} <= 13'b1010_1100_0000_0;
+            `LB:	 {control,hilo_we} <= 13'b1010_1100_0000_0;
+            `LBU: 	 {control,hilo_we} <= 13'b1010_1100_0000_0;
+            `LH: 	 {control,hilo_we} <= 13'b1010_1100_0000_0;
+            `LHU:    {control,hilo_we} <= 13'b1010_1100_0000_0;
+
+            `SW:     {control,hilo_we} <= 13'b0010_1000_0010_0; 
+            `SB: 	 {control,hilo_we} <= 13'b0010_1000_0010_0;
+            `SH:     {control,hilo_we} <= 13'b0010_1000_0010_0;
             
-            `BEQ:    {control,hilo_we} <= 9'b0001000_00;
-            `BNE:    {control,hilo_we} <= 9'b0001000_00;
-            `BGTZ:   {control,hilo_we} <= 9'b0001000_00;
-            `BLEZ:   {control,hilo_we} <= 9'b0001000_00;
-            `BLTZ:   {control,hilo_we} <= 9'b0001000_00;
-            `BGEZ:   {control,hilo_we} <= 9'b0001000_00;
+            `BEQ:    {control,hilo_we} <= 13'b0001_0000_0000_0;
+            `BNE:    {control,hilo_we} <= 13'b0001_0000_0000_0;
+            `BGTZ:   {control,hilo_we} <= 13'b0001_0000_0000_0;
+            `BLEZ:   {control,hilo_we} <= 13'b0001_0000_0000_0;
+             
+            `REGIMM_INST: 
+                case(rt)
+                    `BLTZ:   {control,hilo_we} <= 13'b0001_0000_0000_0;
+                    `BGEZ:   {control,hilo_we} <= 13'b0001_0000_0000_0;
+                    `BLTZAL: {control,hilo_we} <= 13'b1001_0000_0100_0;
+                    `BGEZAL: {control,hilo_we} <= 13'b1001_0000_0100_0;
+                endcase
+            `ADDI:   {control,hilo_we} <= 13'b1010_0000_0000_0;
+            `ANDI:   {control,hilo_we} <= 13'b1010_0000_0000_0;
+            `XORI:   {control,hilo_we} <= 13'b1010_0000_0000_0;
+            `ORI:    {control,hilo_we} <= 13'b1010_0000_0000_0;
+            `LUI:    {control,hilo_we} <= 13'b1010_0000_0000_0;
+            `SLTI:   {control,hilo_we} <= 13'b1010_0000_0000_0;
+            `ADDIU:  {control,hilo_we} <= 13'b1010_0000_0000_0;
+            `SLTIU:  {control,hilo_we} <= 13'b1010_0000_0000_0;
             
-            `ADDI:   {control,hilo_we} <= 9'b1010000_00;
-            `ANDI:   {control,hilo_we} <= 9'b1010000_00;
-            `XORI:   {control,hilo_we} <= 9'b1010000_00;
-            `ORI:    {control,hilo_we} <= 9'b1010000_00;
-            `LUI:    {control,hilo_we} <= 9'b1010000_00;
-            `SLTI:   {control,hilo_we} <= 9'b1010000_00;
-            `ADDIU:  {control,hilo_we} <= 9'b1010000_00;
-            `SLTIU:  {control,hilo_we} <= 9'b1010000_00;
-            
-            
-            `J:      {control,hilo_we} <= 9'b0000001_00;
-            default: {control,hilo_we} <= 9'b0000000_00;
+            `J:      {control,hilo_we} <= 13'b0000_0010_0000_0;
+            `JAL:    {control,hilo_we} <= 13'b1000_0001_0000_0;
+            default: {control,hilo_we} <= 13'b0000_0000_0000_0;
         endcase
     end
 endmodule

@@ -23,7 +23,7 @@
 
 module hazard(
     input wire[4:0] rsD,rtD,rsE,rtE,writeregE,writeregM,writeregW,
-    input wire branchD,regwriteE,memtoregE,regwriteM,memtoregM,regwriteW,
+    input wire branchD,regwriteE,memtoregE,regwriteM,memtoregM,regwriteW,balD,jumpD,
     input wire [1:0]hilo_weM,hilo_weW,hilo_weE,
     input wire [4:0]alucontrolE,
     input wire div_ready,
@@ -70,5 +70,6 @@ module hazard(
     assign stallD = stallF;
     //assign flushD = stallF;
     assign stallE = div_start;
-    assign flushE = lwstall;
+   // assign flushE = lwstall;
+   assign flushE = lwstall | jumpD | (branchD & (!balD));
 endmodule

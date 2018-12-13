@@ -26,67 +26,73 @@ module mips(
 	input wire[31:0] instrF,
 	output wire memwriteM,
 	output wire[31:0] aluoutM,writedataM,
-	input wire[31:0] readdataM 
+	input wire[31:0] readdataM,
+	output wire memen,
+	output wire [3:0]sel
     );
 	
 	wire [5:0] opD,functD;
 	wire regdstE,alusrcE,pcsrcD,memtoregE,memtoregM,memtoregW,
-			regwriteE,regwriteM,regwriteW,branchD,jumpD;
-	wire [1:0] hilo_we;
+			regwriteE,regwriteM,regwriteW,branchD,jumpD,jalD,jrD,balD;
+	wire [1:0] hilo_weD;
 	wire [4:0] alucontrolE;
 	wire flushE,equalD;
 	wire stallE;
 	wire overflow;
 	wire [31:0] instrD;
 	controller c(
-		clk,rst,
+		.clk(clk),.rst(rst),
 		//decode stage
-		instrD,
-		pcsrcD,branchD,equalD,jumpD,
+		.instrD(instrD),
+		.pcsrcD(pcsrcD),.branchD(branchD),.equalD(equalD),.jumpD(jumpD),.jalD(jalD),.jrD(jrD),.balD(balD),
 		
 		//execute stage
-		flushE,
-		stallE,
-		overflow,
-		memtoregE,alusrcE,
-		regdstE,regwriteE,	
-		alucontrolE,
+		.flushE(flushE),
+		.stallE(stallE),
+		.overflow(overflow),
+		.memtoregE(memtoregE),.alusrcE(alusrcE),
+		.regdstE(regdstE),.regwriteE(regwriteE),	
+		.alucontrolE(alucontrolE),
 		
 		//mem stage
-		memtoregM,memwriteM,
-		regwriteM,
+		.memtoregM(memtoregM),.memwriteM(memwriteM),
+		.regwriteM(regwriteM),.memenD(memen),//.sel(sel),
 		//write back stage
-		memtoregW,regwriteW,
-		hilo_we
+		.memtoregW(memtoregW),.regwriteW(regwriteW),
+		.hilo_we(hilo_weD)
+
+		
 		);
 	datapath dp(
-		clk,rst,
+		.clk(clk),.rst(rst),
 		//fetch stage
-		pcF,
-		instrF,
+		.pcF(pcF),
+		.instrF(instrF),
 		//decode stage
-		pcsrcD,branchD,
-		jumpD,
-		equalD,
-		opD,functD,
-		hilo_we,
+		.pcsrcD(pcsrcD),.branchD(branchD),
+		.jumpD(jumpD),.jalD(jalD),.jrD(jrD),.balD(balD),
+		.equalD(equalD),
+		.opD(opD),.functD(functD),
+		.hilo_weD(hilo_weD),
 		//execute stage
-		memtoregE,
-		alusrcE,regdstE,
-		regwriteE,
-		alucontrolE,
-		flushE,
-		stallE,
-		overflow,
+		.memtoregE(memtoregE),
+		.alusrcE(alusrcE),.regdstE(regdstE),
+		.regwriteE(regwriteE),
+		.alucontrolE(alucontrolE),
+		.flushE(flushE),
+		.stallE(stallE),
+		.overflow(overflow),
 		//mem stage
-		memtoregM,
-		regwriteM,
-		aluoutM,writedataM,
-		readdataM,
+		.memtoregM(memtoregM),
+		.regwriteM(regwriteM),
+		.aluoutM(aluoutM),.writedata2M(writedataM),
+		.readdataM(readdataM),.memen(memen),.sel(sel),
 		//writeback stage
-		memtoregW,
-		regwriteW,
-		instrD
+		.memtoregW(memtoregW),
+		.regwriteW(regwriteW),
+		.instrD(instrD)
+
+		
 	    );
 	
 endmodule

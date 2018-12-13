@@ -67,6 +67,8 @@ module aludec(
 
                     `DIV   : alucontrol <= `DIV_CONTROL;
                     `DIVU  : alucontrol <= `DIVU_CONTROL;
+
+                    
                     default  : begin end
                 endcase
             end
