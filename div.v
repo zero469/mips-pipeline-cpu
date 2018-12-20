@@ -30,7 +30,7 @@
 // Revision: 1.0
 //////////////////////////////////////////////////////////////////////
 
-`include "defines.vh"
+`include "defines.h"
 
 module div(
 
@@ -54,6 +54,7 @@ module div(
 	reg[31:0] divisor;	 
 	reg[31:0] temp_op1;
 	reg[31:0] temp_op2;
+	reg[31:0] opdata1,opdata2;
 	wire signed_div_i;	
 //div signed 
 	assign signed_div_i = (op == `DIV_CONTROL) ? 1'b1 : 
@@ -88,6 +89,8 @@ module div(
 		  				dividend <= {`ZeroWord,`ZeroWord};
               dividend[32:1] <= temp_op1;
               divisor <= temp_op2;
+              opdata1 <= opdata1_i;
+              opdata2 <= opdata2_i;
              end
           end else begin
 						ready_o <= `DivResultNotReady;
@@ -108,10 +111,10 @@ module div(
                end
                cnt <= cnt + 1;
              end else begin
-               if((signed_div_i == 1'b1) && ((opdata1_i[31] ^ opdata2_i[31]) == 1'b1)) begin
+               if((signed_div_i == 1'b1) && ((opdata1[31] ^ opdata2[31]) == 1'b1)) begin
                   dividend[31:0] <= (~dividend[31:0] + 1);
                end
-               if((signed_div_i == 1'b1) && ((opdata1_i[31] ^ dividend[64]) == 1'b1)) begin              
+               if((signed_div_i == 1'b1) && ((opdata1[31] ^ dividend[64]) == 1'b1)) begin              
                   dividend[64:33] <= (~dividend[64:33] + 1);
                end
                state <= `DivEnd;

@@ -1,5 +1,5 @@
 `timescale 1ns / 1ps
-`include"defines.vh"
+`include"defines.h"
 //////////////////////////////////////////////////////////////////////////////////
 // Company: 
 // Engineer: 
@@ -33,6 +33,7 @@ module alu(
     output reg [31:0]hi_alu_out,
     output reg [31:0]lo_alu_out,
 ///....
+    input wire [31:0] cp0,
     output reg [31:0] res,
     output wire overflow, zero
      );
@@ -43,9 +44,9 @@ module alu(
             `LUI_CONTROL:   res <= {b[15:0],{16{1'b0}}};
             `XOR_CONTROL:   res <= a ^ b;
             `NOR_CONTROL:   res <= ~(a | b);
-            `ADD_CONTROL:   res <= $signed(a) + $signed(b);
+            `ADD_CONTROL:   res <= a + b;
             `ADDU_CONTROL:  res <= a + b;
-            `SUB_CONTROL:   res <= $signed(a) - $signed(b);
+            `SUB_CONTROL:   res <= a - b;
             `SUBU_CONTROL:  res <= a - b;
             `MULT_CONTROL:  {hi_alu_out,lo_alu_out} <=  $signed(a) * $signed(b);
             `MULTU_CONTROL: {hi_alu_out,lo_alu_out} <=  a * b;
@@ -63,9 +64,13 @@ module alu(
             `MTLO_CONTROL:  lo_alu_out <= a;
             `MFHI_CONTROL:  res <= hi;
             `MFLO_CONTROL:  res <= lo;
+
+            `MTC0_CONTROL: res <= b; 
+            `MFC0_CONTROL: res <= cp0;
         endcase
      end
-     assign overflow = (op == `ADD_CONTROL || op == `SUB_CONTROL) ? ((a[31] & b[31] & (~res[31])) | ((~a[31]) & (~b[31]) & res[31])) : 1'b0;
+     assign overflow = ((op == `ADD_CONTROL) & ((a[31] & b[31] & (!res[31])) | ((!a[31]) & (!b[31]) & res[31]))) |
+                       ((op == `SUB_CONTROL) & ((a[31] & (!b[31]) & (!res[31])) | ((!a[31]) & b[31] & res[31])));
      assign zero = (res == 32'b0) ? 1 : 0;
 endmodule
 /*

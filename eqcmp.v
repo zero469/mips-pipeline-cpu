@@ -1,5 +1,5 @@
 `timescale 1ns / 1ps
-`include"defines.vh"
+`include"defines.h"
 //////////////////////////////////////////////////////////////////////////////////
 // Company: 
 // Engineer: 
@@ -41,9 +41,9 @@ module eqcmp(
                   
                 endcase
              end
-        
+
+         default: c <= 1'b0;
       endcase
-    
     end
                ////BLTZAL  rs的值小于 0则转移
                /// BGEZAL rs的值大于等于 0则转移 

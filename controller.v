@@ -1,5 +1,5 @@
 `timescale 1ns / 1ps
-`include"defines.vh"
+`include"defines.h"
 //////////////////////////////////////////////////////////////////////////////////
 // Company: 
 // Engineer: 
@@ -28,7 +28,8 @@ module controller(
 	output wire pcsrcD,branchD,
 	input wire equalD,
 	output wire jumpD,jalD,jrD,balD,//jump
-	
+	output wire memenD,
+	output wire invalidD,
 	//execute stage
 	input wire flushE,stallE,
 	input wire overflow,///////-----------------new signal
@@ -37,10 +38,12 @@ module controller(
 	output wire[4:0] alucontrolE,
 
 	//mem stage
+	input wire flushM,
 	output wire memtoregM,memwriteM,
-				regwriteM,memenD,
-	//output wire [3:0] sel,
+				regwriteM,memenM,
+	output wire cp0weM,
 	//write back stage
+	input wire flushW,
 	output wire memtoregW,regwriteW,
 	output wire[1:0] hilo_we
  
@@ -49,39 +52,44 @@ module controller(
 	//decode stage
 	wire memtoregD,memwriteD,alusrcD,
 		regdstD,regwriteD;
-	wire memenD,jalD,jrD,balD;
+	wire jalD,jrD,balD;
 	wire[4:0] alucontrolD;
 	wire[5:0]opD,functD;
+	wire cp0weD;
 	assign opD=instrD[31:26];
 	assign functD=instrD[5:0];
 	//execute stage
 	wire memwriteE;
+	wire memenE;
+	wire cp0weE;
 //regwrite,regdst,alusrc,bracn,memen,memtoreg,jump,jal,jr,bal,memwrite;
 	maindec md(
 		.instr(instrD),
 		.control({regwriteD,regdstD,alusrcD,branchD,memenD,memtoregD,jumpD,jalD,jrD,balD,memwriteD}),
-		.hilo_we(hilo_we)
+		.hilo_we(hilo_we),
+		.cp0we(cp0weD),
+		.invalidD(invalidD)
 		);
-	aludec ad(.op(opD),.funct(functD),.alucontrol(alucontrolD));
+	aludec ad(.instr(instrD),.alucontrol(alucontrolD));
 
 
-	assign pcsrcD = branchD & equalD;
+	assign pcsrcD = (branchD | balD) & equalD;
 	//pipeline registers
-	flopenrc #(10) regE(
+	flopenrc #(12) regE(
 		clk,
 		rst,
 		~stallE,
 		flushE,
-		{memtoregD,memwriteD,alusrcD,regdstD,regwriteD,alucontrolD},
-		{memtoregE,memwriteE,alusrcE,regdstE,regwriteE,alucontrolE}
+		{memtoregD,memwriteD,alusrcD,regdstD,regwriteD,memenD,alucontrolD,cp0weD},
+		{memtoregE,memwriteE,alusrcE,regdstE,regwriteE,memenE,alucontrolE,cp0weE}
 		);
-	flopr #(3) regM(
-		clk,rst,
-		{memtoregE,memwriteE,regwriteE & (~overflow)},//overflow cause error
-		{memtoregM,memwriteM,regwriteM}
+	floprc #(5) regM(
+		clk,rst,flushM,
+		{memtoregE,memwriteE,regwriteE & (~overflow),memenE,cp0weE},//overflow cause error
+		{memtoregM,memwriteM,regwriteM,memenM,cp0weM}
 		);
-	flopr #(2) regW(
-		clk,rst,
+	floprc #(2) regW(
+		clk,rst,flushW,
 		{memtoregM,regwriteM},
 		{memtoregW,regwriteW}
 		);
